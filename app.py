@@ -91,7 +91,7 @@ except Exception as e:
     st.stop()
 
 
-st.title("CalWORKs Caseload Movement Interactive Dashboard")
+st.title("CA 237: CalWORKs Caseload Movement Interactive Dashboard")
 st.sidebar.header("Filters")
 
 # county filter sort
