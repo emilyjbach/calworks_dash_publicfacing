@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 
 # config
-st.set_page_config(page_title="CalWORKs Dashboard (Multi-Year/Multi-County)", layout="wide")
+st.set_page_config(page_title="Emily Draft CalWORKs Dashboard", layout="wide")
 
 # def list of data files and the dictionary file
 DATA_FILES = [
