@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Configuration
+# config
 st.set_page_config(page_title="CalWORKs Dashboard (Multi-Year/Multi-County)", layout="wide")
 
-# Define the list of data files and the dictionary file
+# Defines the list of data files and the dictionary file
 DATA_FILES = [
     'FinalData-Table 1.csv',
     'Data_External-Table 2.csv',
@@ -19,11 +19,10 @@ DATA_FILES = [
 
 DICT_FILE = 'DataDictionary-Table 1.csv'
 
-# Use st.cache_data for faster performance, only runs once
 @st.cache_data
 def load_data(data_files_list, dict_file):
     
-    # --- 1. Load Main Data (Handles Multiple Files) ---
+    # main load data
     df_list = []
     for DATA_FILE in data_files_list:
         try:
@@ -40,35 +39,35 @@ def load_data(data_files_list, dict_file):
     if not df_list:
         raise FileNotFoundError("No data files were successfully loaded. Check your DATA_FILES list.")
         
-    # Concatenate all dataframes into one
+    # concat all dataframes into one
     df = pd.concat(df_list, ignore_index=True)
     df.drop_duplicates(inplace=True)
     df = df.dropna(subset=['County Name', 'Report Month'])
     
-    # --- Chronological Sort Fix ---
-    # Convert Report Month (e.g., "Sep 2025") to datetime object for correct sorting
+    # conron sort workaround
+    # convert rep month
     df['Report Date'] = pd.to_datetime(df['Report Month'], errors='coerce')
-    # Remove rows where date parsing failed
+    # remove rows where date parsing failed
     df.dropna(subset=['Report Date'], inplace=True)
     
-    # --- 2. Load Dictionary Data ---
+    # dictionary
     df_dict = pd.read_csv(dict_file, skiprows=1)
     
-    # Correctly handle 5 columns (Cell, Part, Item, Column, Unused)
+   # 5 cols
     df_dict.columns = ['Cell', 'Part', 'Item', 'Column', 'Unused']
     
     # Clean dictionary
     df_dict = df_dict.dropna(subset=['Cell'])
     df_dict['Cell'] = df_dict['Cell'].astype(float).astype(int).astype(str)
     
-    # Create human-readable labels
+    # Ccreate human labels
     df_dict['Label'] = df_dict['Part'].str.strip() + " | " + df_dict['Item'].str.strip()
     mask = df_dict['Column'].notna()
     df_dict.loc[mask, 'Label'] = df_dict['Label'] + " | " + df_dict['Column'].astype(str).str.strip()
     
     mapping = dict(zip(df_dict['Cell'], df_dict['Label']))
     
-    # --- 3. Clean Numeric Columns ---
+    # numbered cols
     numeric_cols = [c for c in df.columns if str(c).isdigit()]
     
     for col in numeric_cols:
@@ -78,10 +77,10 @@ def load_data(data_files_list, dict_file):
             errors='coerce'
         ).fillna(0)
         
-    # The function returns the main dataframe with the new 'Report Date' column
+    # return main dataframe w/ correct cols for sort
     return df, mapping, numeric_cols
 
-# --- Application Starts Here ---
+# EMILY YOUR APP STARTS HERE
 try:
     df, mapping, numeric_cols = load_data(DATA_FILES, DICT_FILE)
 except FileNotFoundError as e:
@@ -95,7 +94,7 @@ except Exception as e:
 st.title("CalWORKs Caseload Movement Interactive Dashboard")
 st.sidebar.header("Filters")
 
-# --- 1. County Filter (Multi-select) ---
+# county filter sort
 counties = sorted(df['County Name'].unique())
 try:
     # Default to Statewide if present, otherwise the first county
@@ -114,11 +113,11 @@ if not selected_counties:
     st.warning("Please select at least one county to visualize.")
     st.stop()
 
-# --- 2. Metric Filter (Multi-select) ---
+# metric filter sort
 metric_options = {mapping.get(c, f"Cell {c}"): c for c in numeric_cols if c in mapping}
 metric_labels = list(metric_options.keys())
 
-# Default selection: Applications received (Cell 4) and Cases open (Cell 54)
+# defaults
 default_metric_selection = [label for label, id in metric_options.items() if id in ['4', '54'] and label in metric_labels]
 
 selected_metric_labels = st.sidebar.multiselect(
@@ -133,15 +132,15 @@ if not selected_metric_labels:
 
 selected_metric_ids = [metric_options[label] for label in selected_metric_labels]
 
-# --- Data Filtering and Sorting ---
+# data filtering and sorting
 # Filter by ALL selected counties
 filtered_df = df[df['County Name'].isin(selected_counties)].copy() 
 
-# --- Sorting for chronological X-axis ---
-# We sort by the new 'Report Date' (datetime object) for chronological order
+# chron x-axis tasks
+
 filtered_df.sort_values('Report Date', inplace=True)
 
-# --- Line Chart Visualization ---
+# viz
 st.subheader(f"Metrics Trend for: {', '.join(selected_counties)}")
 
 if filtered_df.empty:
@@ -149,14 +148,11 @@ if filtered_df.empty:
 else:
     plot_df = filtered_df.copy()
     
-    # Select only the relevant columns (Month, County Name, and selected metric IDs)
     plot_df = plot_df[['Report Month', 'County Name'] + selected_metric_ids]
     
-    # Rename columns in the plotting dataframe for human-readable legend labels
     rename_mapping = {id: label for id, label in zip(selected_metric_ids, selected_metric_labels)}
     plot_df.rename(columns=rename_mapping, inplace=True)
     
-    # Melt (unpivot) the data for Plotly to draw multiple lines correctly
     plot_df_melted = plot_df.melt(
         id_vars=['Report Month', 'County Name'], 
         value_vars=selected_metric_labels, 
@@ -164,10 +160,8 @@ else:
         value_name='Count'
     )
     
-    # Create a unique line identifier column combining County and Metric
     plot_df_melted['Line Identifier'] = plot_df_melted['County Name'] + " - " + plot_df_melted['Metric']
 
-    # Plotly Line Chart
     fig = px.line(
         plot_df_melted, 
         x='Report Month', # x-axis uses the original month string for clean labels
@@ -179,7 +173,6 @@ else:
         height=600 # Set a fixed height for a bigger chart
     )
     
-    # MOVED LEGEND TO THE BOTTOM AND ADJUSTED 'y' FOR MORE CLEARANCE
     fig.update_layout(
         yaxis_title="Count",
         legend_title="County & Metric",
@@ -195,6 +188,6 @@ else:
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # Data Table
+    # table for val (if you send to attorneys u should keep this
     st.subheader("Underlying Data")
     st.dataframe(plot_df_melted)
