@@ -5,7 +5,7 @@ import plotly.express as px
 # config
 st.set_page_config(page_title="CalWORKs Dashboard (Multi-Year/Multi-County)", layout="wide")
 
-# Defines the list of data files and the dictionary file
+# def list of data files and the dictionary file
 DATA_FILES = [
     'FinalData-Table 1.csv',
     'Data_External-Table 2.csv',
