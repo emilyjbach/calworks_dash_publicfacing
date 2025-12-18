@@ -7,17 +7,12 @@ st.set_page_config(page_title="Emily Draft CalWORKs Dashboard", layout="wide")
 
 # def list of data files and the dictionary file
 DATA_FILES = [
-    'FinalData-Table 1.csv',
-    'Data_External-Table 2.csv',
-    'Data_External-Table 1.csv',
-    'Data_External-Table 3.csv',
-    'FinalData-Table 4.csv',
-    'FinalData-Table 5.csv',
-    'FinalData-Table 6.csv',
-    'Data_External-Table 7.csv',
+    '15-16.csv', '16-17.csv', '17-18.csv', '18-19.csv',
+    '19-20.csv', '20-21.csv', '21-22.csv', '22-23.csv,' 
+    '23-24.csv', '24-25.csv', 
 ]
 
-DICT_FILE = 'DataDictionary-Table 1.csv'
+DICT_FILE = 'data-dictionary.csv'
 
 @st.cache_data
 def load_data(data_files_list, dict_file):
