@@ -268,7 +268,7 @@ try:
         ).interactive()
         st.altair_chart(chart, use_container_width=True)
         
-        st.markdown("### Data Detail")
+        st.markdown("### Underlying Data")
         st.dataframe(plot_df.drop(columns=["Series", "Date"]))
     else:
         st.warning("Adjust filters to view data.")
