@@ -275,9 +275,8 @@ try:
 
     st.markdown("---")
     st.markdown("### Interpreting CalWORKs Data")
-    st.caption("
-'asdfdadfkj.
-    ")
+    st.caption("""
+'asdfdadfkj.""",)
 
 except Exception as err:
     st.error(f"Error: {err}")
