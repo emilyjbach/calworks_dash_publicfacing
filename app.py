@@ -275,12 +275,9 @@ try:
 
     st.markdown("---")
     st.markdown("### Interpreting CalWORKs Data")
-    st.caption("""
-        The **CA 237 CW** report is a critical tool for understanding economic security in California. 
-        Note that CDSS applies de-identification (replacing values 1-11 with a *) to protect privacy in 
-        small caseload categories. This is particularly noticeable in smaller counties or specific 
-        sub-metrics like 'Denials due to Diversion'.
-    """)
+    st.caption("
+'asdfdadfkj.
+    ")
 
 except Exception as err:
     st.error(f"Error: {err}")
